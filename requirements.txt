@@ -5,3 +5,4 @@ pypdf2
 pandas
 openpyxl
 python-multipart
+PyMuPDF
