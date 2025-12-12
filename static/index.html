@@ -201,15 +201,15 @@
 <body>
   <h1>Electrical Label Extractor</h1>
   <p class="subtitle">
-    Use <strong>Type 1</strong> for your original one-line diagrams and
-    <strong>Type 2</strong> for label-style systems.
+    <!-- Use <strong>Type 1</strong> for your original one-line diagrams and
+    <strong>Type 2</strong> for label-style systems. -->
   </p>
 
   <div class="upload-container">
     <!-- Type 1 panel -->
     <div class="panel">
       <h2>Type 1 PDFs</h2>
-      <p>Upload Medium Voltage / System A style diagrams handled by your original script.</p>
+      <p>Upload PDF like Medium Voltage style diagrams.</p>
 
       <input type="file" id="pdfFileType1" accept="application/pdf" />
       <button id="btnType1" onclick="uploadPDFType1()">Process Type 1</button>
@@ -234,7 +234,7 @@
     <!-- Type 2 panel -->
     <div class="panel">
       <h2>Type 2 PDFs</h2>
-      <p>Upload the label-type diagrams handled by <code>Extract_equipment_simple2.py</code>.</p>
+      <p>Upload PDF like System A style diagrams.</p>
 
       <input type="file" id="pdfFileType2" accept="application/pdf" />
       <button id="btnType2" onclick="uploadPDFType2()">Process Type 2</button>
