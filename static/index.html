@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Electrical Label Extractor - Type 1 & Type 2</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    /* ---------- Base ---------- */
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f3f4f6;
+      color: #111827;
+    }
+
+    h1 {
+      text-align: center;
+      margin-top: 24px;
+      margin-bottom: 4px;
+      font-weight: 600;
+      color: #0f172a;
+    }
+
+    p.subtitle {
+      text-align: center;
+      margin-top: 0;
+      margin-bottom: 24px;
+      color: #6b7280;
+      font-size: 0.95rem;
+    }
+
+    /* ---------- Layout ---------- */
+    .upload-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 24px;
+      padding: 24px;
+      justify-content: center;
+      max-width: 1300px;
+      margin: 0 auto 32px;
+    }
+
+    .panel {
+      background: #ffffff;
+      border-radius: 12px;
+      padding: 18px 20px 16px;
+      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
+      border: 1px solid #e5e7eb;
+      flex: 1 1 420px;
+      max-width: 620px;
+    }
+
+    .panel h2 {
+      margin-top: 0;
+      margin-bottom: 4px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #111827;
+    }
+
+    .panel p {
+      margin-top: 0;
+      margin-bottom: 12px;
+      color: #6b7280;
+      font-size: 0.9rem;
+    }
+
+    input[type="file"] {
+      margin-top: 8px;
+      margin-bottom: 12px;
+      font-size: 0.9rem;
+    }
+
+    /* ---------- Buttons ---------- */
+    button {
+      padding: 7px 13px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+      background: #2563eb;
+      color: #ffffff;
+      cursor: pointer;
+      font-size: 0.9rem;
+      font-weight: 500;
+      transition:
+        background 0.15s ease,
+        box-shadow 0.15s ease,
+        transform 0.05s ease;
+    }
+
+    button:hover {
+      background: #1d4ed8;
+      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+    }
+
+    button:active {
+      transform: translateY(1px);
+      box-shadow: none;
+    }
+
+    button.secondary {
+      background: #f9fafb;
+      border-color: #d1d5db;
+      color: #111827;
+      box-shadow: none;
+    }
+
+    button.secondary:hover {
+      background: #e5e7eb;
+      border-color: #9ca3af;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+    }
+
+    .button-group {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    /* ---------- Table ---------- */
+    .scroll-wrapper {
+      max-height: 420px;
+      overflow: auto;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+      margin-top: 10px;
+      background: #ffffff;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+    }
+
+    th,
+    td {
+      border-bottom: 1px solid #e5e7eb;
+      padding: 6px 8px;
+      text-align: left;
+    }
+
+    th {
+      background: #f3f4f6;
+      color: #374151;
+      font-weight: 600;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    tr:nth-child(even) td {
+      background: #fafafa;
+    }
+
+    tr:nth-child(odd) td {
+      background: #ffffff;
+    }
+
+    td[contenteditable="true"] {
+      outline: none;
+    }
+
+    td[contenteditable="true"]:focus {
+      background: #eef2ff;
+    }
+
+    /* ---------- Footer / meta ---------- */
+    .results-footer {
+      margin-top: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .exec-time {
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
+  </style>
+  <!-- SheetJS for Excel download -->
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
+</head>
+<body>
+  <h1>Electrical Label Extractor</h1>
+  <p class="subtitle">
+    <!-- Use <strong>Type 1</strong> for your original one-line diagrams and
+    <strong>Type 2</strong> for label-style systems. -->
+  </p>
+
+  <div class="upload-container">
+    <!-- Type 1 panel -->
+    <div class="panel">
+      <h2>Type 1 PDFs</h2>
+      <p>Upload pdf like Medium Voltage style diagrams.</p>
+
+      <input type="file" id="pdfFileType1" accept="application/pdf" />
+      <button onclick="uploadPDFType1()">Process Type 1</button>
+
+      <div class="scroll-wrapper" id="scrollType1" style="display: none;">
+        <table id="tableType1"></table>
+      </div>
+      <div class="results-footer" id="footerType1" style="display: none;">
+        <span class="exec-time" id="execTimeType1"></span>
+        <div class="button-group">
+          <button class="secondary" onclick="downloadEditedExcel('type1')">
+            Download edited Excel
+          </button>
+          <button onclick="downloadServerExcel('type1')">
+            Download original styled Excel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Type 2 panel -->
+    <div class="panel">
+      <h2>Type 2 PDFs</h2>
+      <p> Upload pdf like System A style diagrams.</p>
+
+      <input type="file" id="pdfFileType2" accept="application/pdf" />
+      <button onclick="uploadPDFType2()">Process Type 2</button>
+
+      <div class="scroll-wrapper" id="scrollType2" style="display: none;">
+        <table id="tableType2"></table>
+      </div>
+      <div class="results-footer" id="footerType2" style="display: none;">
+        <span class="exec-time" id="execTimeType2"></span>
+        <div class="button-group">
+          <button class="secondary" onclick="downloadEditedExcel('type2')">
+            Download edited Excel
+          </button>
+          <button onclick="downloadServerExcel('type2')">
+            Download original styled Excel
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = window.location.origin;
+
+    let type1Data = [];
+    let type2Data = [];
+    let type1ExecTime = null;
+    let type2ExecTime = null;
+    let type1ExcelFileName = null; // server-generated file
+    let type2ExcelFileName = null; // server-generated file
+
+    function renderTable(data, tableId) {
+      const table = document.getElementById(tableId);
+      if (!table) return;
+
+      if (!data.length) {
+        table.innerHTML = "<tbody><tr><td>No data returned</td></tr></tbody>";
+        return;
+      }
+
+      let html = "";
+      html += "<thead><tr>";
+      html += "<th>Equipment</th>";
+      html += "<th>Type</th>";
+      html += "<th>Properties</th>";
+      html += "<th>Primary From</th>";
+      html += "<th>Alternate From</th>";
+      html += "</tr></thead>";
+
+      html += "<tbody>";
+      data.forEach((row, idx) => {
+        html += "<tr>";
+        html += `<td contenteditable="true" oninput="updateCell('${tableId}', ${idx}, 'Equipment', this.innerText)">${row.Equipment || ""}</td>`;
+        html += `<td contenteditable="true" oninput="updateCell('${tableId}', ${idx}, 'Type', this.innerText)">${row.Type || ""}</td>`;
+        html += `<td contenteditable="true" oninput="updateCell('${tableId}', ${idx}, 'Properties', this.innerText)">${row.Properties || ""}</td>`;
+        html += `<td contenteditable="true" oninput="updateCell('${tableId}', ${idx}, 'Primary From', this.innerText)">${row["Primary From"] || ""}</td>`;
+        html += `<td contenteditable="true" oninput="updateCell('${tableId}', ${idx}, 'Alternate From', this.innerText)">${row["Alternate From"] || ""}</td>`;
+        html += "</tr>";
+      });
+      html += "</tbody>";
+
+      table.innerHTML = html;
+    }
+
+    function updateCell(tableId, index, key, value) {
+      let targetArray = tableId === "tableType1" ? type1Data : type2Data;
+      if (!targetArray[index]) return;
+      targetArray[index][key] = value;
+    }
+
+    async function uploadPDFType1() {
+      const input = document.getElementById("pdfFileType1");
+      const file = input.files[0];
+      if (!file) {
+        alert("Please select a PDF file for Type 1.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("pdf_file", file);
+
+      try {
+        const res = await fetch(`${API_BASE}/extract-type1`, {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!res.ok) {
+          alert("Type 1 extraction failed.");
+          return;
+        }
+
+        const json = await res.json();
+        type1Data = json.equipment_data || [];
+        type1ExecTime = json.execution_time_seconds;
+        type1ExcelFileName = json.excel_file_name || null;
+
+        renderTable(type1Data, "tableType1");
+
+        document.getElementById("scrollType1").style.display = "block";
+        document.getElementById("footerType1").style.display = "flex";
+        document.getElementById("execTimeType1").innerText =
+          `Execution time: ${type1ExecTime}s`;
+      } catch (err) {
+        console.error(err);
+        alert("Error while calling Type 1 endpoint.");
+      }
+    }
+
+    async function uploadPDFType2() {
+      const input = document.getElementById("pdfFileType2");
+      const file = input.files[0];
+      if (!file) {
+        alert("Please select a PDF file for Type 2.");
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append("pdf_file", file);
+
+      try {
+        const res = await fetch(`${API_BASE}/extract-type2`, {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!res.ok) {
+          alert("Type 2 extraction failed.");
+          return;
+        }
+
+        const json = await res.json();
+        type2Data = json.equipment_data || [];
+        type2ExecTime = json.execution_time_seconds;
+        type2ExcelFileName = json.excel_file_name || null;
+
+        renderTable(type2Data, "tableType2");
+
+        document.getElementById("scrollType2").style.display = "block";
+        document.getElementById("footerType2").style.display = "flex";
+        document.getElementById("execTimeType2").innerText =
+          `Execution time: ${type2ExecTime}s`;
+      } catch (err) {
+        console.error(err);
+        alert("Error while calling Type 2 endpoint.");
+      }
+    }
+
+    // Download edited version (what you see in the table)
+    async function downloadEditedExcel(which) {
+      const raw = which === "type1" ? type1Data : type2Data;
+      if (!raw || !raw.length) {
+        alert("No data to export.");
+        return;
+      }
+
+      // Clean / whitelist columns to match your files
+      const headers =
+        which === "type1"
+          ? ["Equipment", "Type", "Properties", "Primary From", "Alternate From"]
+          : ["Equipment", "Type", "Properties", "Alternate From", "Primary From"];
+
+      const rows = raw.map((r) => {
+        const obj = {};
+        headers.forEach((h) => {
+          obj[h] = r[h] !== undefined && r[h] !== null ? r[h] : "";
+        });
+        return obj;
+      });
+
+      try {
+        const res = await fetch(`${API_BASE}/export-edited`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ which, rows }),
+        });
+
+        if (!res.ok) {
+          alert("Failed to generate edited Excel on server.");
+          return;
+        }
+
+        const json = await res.json();
+        const fileName = json.excel_file_name;
+        if (!fileName) {
+          alert("Server did not return a file name.");
+          return;
+        }
+
+        // Trigger download of the generated file
+        window.open(`${API_BASE}/outputs/${fileName}`, "_blank");
+      } catch (err) {
+        console.error(err);
+        alert("Error while calling export-edited endpoint.");
+      }
+    }
+    
+
+    // Download the server-generated Excel (styled, with System/Page etc.)
+    function downloadServerExcel(which) {
+      const fileName =
+        which === "type1" ? type1ExcelFileName : type2ExcelFileName;
+
+      if (!fileName) {
+        alert("Server Excel file is not available yet.");
+        return;
+      }
+
+      window.open(`${API_BASE}/outputs/${fileName}`, "_blank");
+    }
+  </script>
+</body>
+</html>
