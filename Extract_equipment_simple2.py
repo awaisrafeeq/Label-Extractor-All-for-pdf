@@ -1,4 +1,7 @@
-import fitz  # PyMuPDF
+try:
+    import fitz  # older PyMuPDF alias
+except ModuleNotFoundError:
+    import pymupdf as fitz  # newer import name
 import re
 import pandas as pd
 import os
