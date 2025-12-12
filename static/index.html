@@ -5,7 +5,6 @@
   <title>Electrical Label Extractor - Type 1 & Type 2</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    /* ---------- Base ---------- */
     * {
       box-sizing: border-box;
     }
@@ -34,7 +33,6 @@
       font-size: 0.95rem;
     }
 
-    /* ---------- Layout ---------- */
     .upload-container {
       display: flex;
       flex-wrap: wrap;
@@ -76,7 +74,6 @@
       font-size: 0.9rem;
     }
 
-    /* ---------- Buttons ---------- */
     button {
       padding: 7px 13px;
       border-radius: 6px;
@@ -89,7 +86,8 @@
       transition:
         background 0.15s ease,
         box-shadow 0.15s ease,
-        transform 0.05s ease;
+        transform 0.05s ease,
+        opacity 0.1s ease;
     }
 
     button:hover {
@@ -102,6 +100,13 @@
       box-shadow: none;
     }
 
+    button:disabled {
+      opacity: 0.6;
+      cursor: default;
+      box-shadow: none;
+      transform: none;
+    }
+
     button.secondary {
       background: #f9fafb;
       border-color: #d1d5db;
@@ -109,7 +114,7 @@
       box-shadow: none;
     }
 
-    button.secondary:hover {
+    button.secondary:hover:not(:disabled) {
       background: #e5e7eb;
       border-color: #9ca3af;
       box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
@@ -122,7 +127,6 @@
       justify-content: flex-end;
     }
 
-    /* ---------- Table ---------- */
     .scroll-wrapper {
       max-height: 420px;
       overflow: auto;
@@ -170,7 +174,6 @@
       background: #eef2ff;
     }
 
-    /* ---------- Footer / meta ---------- */
     .results-footer {
       margin-top: 10px;
       display: flex;
@@ -184,25 +187,33 @@
       font-size: 0.8rem;
       color: #6b7280;
     }
+
+    .loading-label {
+      margin-left: 8px;
+      font-size: 0.8rem;
+      color: #6b7280;
+      display: none;
+    }
   </style>
-  <!-- SheetJS for Excel download -->
+  <!-- SheetJS is still included (only used if you want it later) -->
   <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 </head>
 <body>
   <h1>Electrical Label Extractor</h1>
   <p class="subtitle">
-    <!-- Use <strong>Type 1</strong> for your original one-line diagrams and
-    <strong>Type 2</strong> for label-style systems. -->
+    Use <strong>Type 1</strong> for your original one-line diagrams and
+    <strong>Type 2</strong> for label-style systems.
   </p>
 
   <div class="upload-container">
     <!-- Type 1 panel -->
     <div class="panel">
       <h2>Type 1 PDFs</h2>
-      <p>Upload pdf like Medium Voltage style diagrams.</p>
+      <p>Upload Medium Voltage / System A style diagrams handled by your original script.</p>
 
       <input type="file" id="pdfFileType1" accept="application/pdf" />
-      <button onclick="uploadPDFType1()">Process Type 1</button>
+      <button id="btnType1" onclick="uploadPDFType1()">Process Type 1</button>
+      <span id="loadingType1" class="loading-label">Processing…</span>
 
       <div class="scroll-wrapper" id="scrollType1" style="display: none;">
         <table id="tableType1"></table>
@@ -223,10 +234,11 @@
     <!-- Type 2 panel -->
     <div class="panel">
       <h2>Type 2 PDFs</h2>
-      <p> Upload pdf like System A style diagrams.</p>
+      <p>Upload the label-type diagrams handled by <code>Extract_equipment_simple2.py</code>.</p>
 
       <input type="file" id="pdfFileType2" accept="application/pdf" />
-      <button onclick="uploadPDFType2()">Process Type 2</button>
+      <button id="btnType2" onclick="uploadPDFType2()">Process Type 2</button>
+      <span id="loadingType2" class="loading-label">Processing…</span>
 
       <div class="scroll-wrapper" id="scrollType2" style="display: none;">
         <table id="tableType2"></table>
@@ -252,8 +264,28 @@
     let type2Data = [];
     let type1ExecTime = null;
     let type2ExecTime = null;
-    let type1ExcelFileName = null; // server-generated file
-    let type2ExcelFileName = null; // server-generated file
+    let type1ExcelFileName = null;
+    let type2ExcelFileName = null;
+
+    // Helper to toggle loading state
+    function setLoading(which, isLoading) {
+      const btnId = which === "type1" ? "btnType1" : "btnType2";
+      const loadId = which === "type1" ? "loadingType1" : "loadingType2";
+
+      const btn = document.getElementById(btnId);
+      const label = document.getElementById(loadId);
+      if (!btn || !label) return;
+
+      if (isLoading) {
+        btn.disabled = true;
+        btn.textContent = which === "type1" ? "Processing..." : "Processing...";
+        label.style.display = "inline";
+      } else {
+        btn.disabled = false;
+        btn.textContent = which === "type1" ? "Process Type 1" : "Process Type 2";
+        label.style.display = "none";
+      }
+    }
 
     function renderTable(data, tableId) {
       const table = document.getElementById(tableId);
@@ -305,6 +337,8 @@
       const formData = new FormData();
       formData.append("pdf_file", file);
 
+      setLoading("type1", true);
+
       try {
         const res = await fetch(`${API_BASE}/extract-type1`, {
           method: "POST",
@@ -330,6 +364,8 @@
       } catch (err) {
         console.error(err);
         alert("Error while calling Type 1 endpoint.");
+      } finally {
+        setLoading("type1", false);
       }
     }
 
@@ -343,6 +379,8 @@
 
       const formData = new FormData();
       formData.append("pdf_file", file);
+
+      setLoading("type2", true);
 
       try {
         const res = await fetch(`${API_BASE}/extract-type2`, {
@@ -369,10 +407,12 @@
       } catch (err) {
         console.error(err);
         alert("Error while calling Type 2 endpoint.");
+      } finally {
+        setLoading("type2", false);
       }
     }
 
-    // Download edited version (what you see in the table)
+    // Download edited version via server (styled header)
     async function downloadEditedExcel(which) {
       const raw = which === "type1" ? type1Data : type2Data;
       if (!raw || !raw.length) {
@@ -380,7 +420,6 @@
         return;
       }
 
-      // Clean / whitelist columns to match your files
       const headers =
         which === "type1"
           ? ["Equipment", "Type", "Properties", "Primary From", "Alternate From"]
@@ -415,16 +454,14 @@
           return;
         }
 
-        // Trigger download of the generated file
         window.open(`${API_BASE}/outputs/${fileName}`, "_blank");
       } catch (err) {
         console.error(err);
         alert("Error while calling export-edited endpoint.");
       }
     }
-    
 
-    // Download the server-generated Excel (styled, with System/Page etc.)
+    // Download the server-generated Excel (original extraction output)
     function downloadServerExcel(which) {
       const fileName =
         which === "type1" ? type1ExcelFileName : type2ExcelFileName;
