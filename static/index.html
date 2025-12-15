@@ -2,476 +2,1164 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <title>Electrical Label Extractor - Type 1 & Type 2</title>
+  <title>EquipGPT Dashboard - PDF Processing Suite</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    * {
-      box-sizing: border-box;
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body { 
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
-
-    body {
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      margin: 0;
-      padding: 0;
-      background: #f3f4f6;
-      color: #111827;
+    
+    /* Sidebar Navigation */
+    .sidebar {
+      width: 260px;
+      height: 100vh;
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      position: fixed;
+      left: 0;
+      top: 0;
+      padding: 24px 0;
+      box-shadow: 4px 0 20px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      transition: transform 0.3s ease;
     }
-
-    h1 {
-      text-align: center;
-      margin-top: 24px;
-      margin-bottom: 4px;
-      font-weight: 600;
-      color: #0f172a;
-    }
-
-    p.subtitle {
-      text-align: center;
-      margin-top: 0;
+    
+    .logo {
+      padding: 0 24px 32px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.08);
       margin-bottom: 24px;
-      color: #6b7280;
-      font-size: 0.95rem;
     }
-
-    .upload-container {
+    
+    .logo h1 {
+      font-size: 24px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      font-weight: 800;
+    }
+    
+    .logo p {
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+    
+    .nav-items {
+      padding: 0 16px;
+    }
+    
+    .nav-item {
       display: flex;
-      flex-wrap: wrap;
-      gap: 24px;
-      padding: 24px;
-      justify-content: center;
-      max-width: 1300px;
-      margin: 0 auto 32px;
-    }
-
-    .panel {
-      background: #ffffff;
-      border-radius: 12px;
-      padding: 18px 20px 16px;
-      box-shadow: 0 8px 20px rgba(15, 23, 42, 0.06);
-      border: 1px solid #e5e7eb;
-      flex: 1 1 420px;
-      max-width: 620px;
-    }
-
-    .panel h2 {
-      margin-top: 0;
-      margin-bottom: 4px;
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: #111827;
-    }
-
-    .panel p {
-      margin-top: 0;
-      margin-bottom: 12px;
-      color: #6b7280;
-      font-size: 0.9rem;
-    }
-
-    input[type="file"] {
-      margin-top: 8px;
-      margin-bottom: 12px;
-      font-size: 0.9rem;
-    }
-
-    button {
-      padding: 7px 13px;
-      border-radius: 6px;
-      border: 1px solid transparent;
-      background: #2563eb;
-      color: #ffffff;
+      align-items: center;
+      padding: 12px 16px;
+      margin-bottom: 8px;
+      border-radius: 10px;
       cursor: pointer;
-      font-size: 0.9rem;
+      transition: all 0.2s;
+      color: #374151;
+      text-decoration: none;
+      background: transparent;
+      border: none;
+      width: 100%;
+      text-align: left;
+      font-size: 14px;
       font-weight: 500;
-      transition:
-        background 0.15s ease,
-        box-shadow 0.15s ease,
-        transform 0.05s ease,
-        opacity 0.1s ease;
     }
-
-    button:hover {
-      background: #1d4ed8;
-      box-shadow: 0 4px 10px rgba(37, 99, 235, 0.2);
+    
+    .nav-item:hover {
+      background: rgba(102, 126, 234, 0.1);
+      color: #667eea;
     }
-
-    button:active {
-      transform: translateY(1px);
-      box-shadow: none;
+    
+    .nav-item.active {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
     }
-
-    button:disabled {
-      opacity: 0.6;
-      cursor: default;
-      box-shadow: none;
+    
+    .nav-item svg {
+      width: 20px;
+      height: 20px;
+      margin-right: 12px;
+      flex-shrink: 0;
+    }
+    
+    /* Main Content Area */
+    .main-content {
+      margin-left: 260px;
+      padding: 32px;
+      min-height: 100vh;
+    }
+    
+    .page {
+      display: none;
+      animation: fadeIn 0.4s ease;
+    }
+    
+    .page.active {
+      display: block;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Dashboard Stats */
+    .dashboard-header {
+      margin-bottom: 32px;
+    }
+    
+    .dashboard-header h2 {
+      font-size: 32px;
+      color: white;
+      margin-bottom: 8px;
+      font-weight: 700;
+    }
+    
+    .dashboard-header p {
+      color: rgba(255, 255, 255, 0.8);
+      font-size: 16px;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+    
+    .stat-card {
+      background: white;
+      padding: 24px;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 15px 50px rgba(0, 0, 0, 0.12);
+    }
+    
+    .stat-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      color: #6b7280;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    
+    .stat-value {
+      font-size: 36px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .stat-change {
+      font-size: 13px;
+      color: #10b981;
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+    }
+    
+    /* Upload Sections */
+    .upload-container {
+      background: white;
+      border-radius: 20px;
+      padding: 32px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    }
+    
+    .upload-header {
+      margin-bottom: 24px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #f3f4f6;
+    }
+    
+    .upload-header h3 {
+      font-size: 24px;
+      color: #1f2937;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+    
+    .upload-header p {
+      color: #6b7280;
+      font-size: 14px;
+    }
+    
+    .upload-area {
+      border: 2px dashed #e5e7eb;
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
+      margin-bottom: 24px;
+      transition: all 0.3s;
+      background: #fafbfc;
+    }
+    
+    .upload-area:hover {
+      border-color: #667eea;
+      background: rgba(102, 126, 234, 0.02);
+    }
+    
+    .upload-area.dragging {
+      border-color: #667eea;
+      background: rgba(102, 126, 234, 0.05);
+    }
+    
+    .upload-icon {
+      width: 64px;
+      height: 64px;
+      margin: 0 auto 16px;
+      opacity: 0.4;
+    }
+    
+    .file-input {
+      display: none;
+    }
+    
+    .btn {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      padding: 12px 24px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+    }
+    
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
       transform: none;
     }
-
-    button.secondary {
-      background: #f9fafb;
-      border-color: #d1d5db;
-      color: #111827;
-      box-shadow: none;
-    }
-
-    button.secondary:hover:not(:disabled) {
-      background: #e5e7eb;
-      border-color: #9ca3af;
-      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
-    }
-
-    .button-group {
-      display: flex;
-      gap: 8px;
-      flex-wrap: wrap;
-      justify-content: flex-end;
-    }
-
-    .scroll-wrapper {
-      max-height: 420px;
-      overflow: auto;
-      border-radius: 8px;
-      border: 1px solid #e5e7eb;
-      margin-top: 10px;
-      background: #ffffff;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 0.85rem;
-    }
-
-    th,
-    td {
-      border-bottom: 1px solid #e5e7eb;
-      padding: 6px 8px;
-      text-align: left;
-    }
-
-    th {
+    
+    .btn-secondary {
       background: #f3f4f6;
       color: #374151;
-      font-weight: 600;
-      position: sticky;
-      top: 0;
-      z-index: 1;
     }
-
-    tr:nth-child(even) td {
-      background: #fafafa;
+    
+    .btn-secondary:hover {
+      background: #e5e7eb;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
     }
-
-    tr:nth-child(odd) td {
-      background: #ffffff;
+    
+    /* Results Section */
+    .results-section {
+      margin-top: 32px;
+      display: none;
     }
-
-    td[contenteditable="true"] {
-      outline: none;
+    
+    .results-section.active {
+      display: block;
     }
-
-    td[contenteditable="true"]:focus {
-      background: #eef2ff;
-    }
-
-    .results-footer {
-      margin-top: 10px;
+    
+    .result-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 8px;
+      margin-bottom: 20px;
     }
-
-    .exec-time {
-      font-size: 0.8rem;
-      color: #6b7280;
+    
+    .result-stats {
+      display: flex;
+      gap: 24px;
     }
-
-    .loading-label {
-      margin-left: 8px;
-      font-size: 0.8rem;
+    
+    .result-stat {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .result-stat span:first-child {
+      font-size: 12px;
       color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .result-stat span:last-child {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1f2937;
+    }
+    
+    /* Table Styles */
+    .table-container {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+    }
+    
+    .equipment-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .equipment-table th {
+      background: #f9fafb;
+      padding: 12px;
+      text-align: left;
+      font-size: 12px;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .equipment-table td {
+      padding: 12px;
+      border-bottom: 1px solid #f3f4f6;
+      font-size: 14px;
+      color: #374151;
+    }
+    
+    .equipment-table td[contenteditable="true"] {
+      cursor: text;
+      transition: background 0.2s;
+    }
+    
+    .equipment-table td[contenteditable="true"]:hover {
+      background: #f9fafb;
+    }
+    
+    .equipment-table td[contenteditable="true"]:focus {
+      outline: 2px solid #667eea;
+      outline-offset: -1px;
+      background: rgba(102, 126, 234, 0.05);
+    }
+    
+    /* Pagination */
+    .pagination {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      margin-top: 24px;
+      padding: 20px;
+      background: #f9fafb;
+      border-radius: 0 0 12px 12px;
+    }
+    
+    .pagination button {
+      padding: 8px 16px;
+      border-radius: 8px;
+      background: white;
+      border: 1px solid #e5e7eb;
+      color: #374151;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    
+    .pagination button:hover:not(:disabled) {
+      background: #667eea;
+      color: white;
+      border-color: #667eea;
+    }
+    
+    .pagination button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .page-info {
+      font-size: 14px;
+      color: #6b7280;
+      padding: 0 12px;
+    }
+    
+    /* Loading Spinner */
+    .loader {
+      display: none;
+      justify-content: center;
+      align-items: center;
+      padding: 32px;
+    }
+    
+    .loader.active {
+      display: flex;
+    }
+    
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid #e5e7eb;
+      border-top: 4px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* Status Messages */
+    .status-message {
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-top: 16px;
+      font-size: 14px;
       display: none;
     }
+    
+    .status-message.success {
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #a7f3d0;
+      display: block;
+    }
+    
+    .status-message.error {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+      display: block;
+    }
+    
+    /* Recent Activity */
+    .activity-list {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      margin-top: 24px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    }
+    
+    .activity-header {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 20px;
+    }
+    
+    .activity-item {
+      display: flex;
+      align-items: center;
+      padding: 12px 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+    
+    .activity-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: 16px;
+    }
+    
+    .activity-details {
+      flex: 1;
+    }
+    
+    .activity-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1f2937;
+      margin-bottom: 4px;
+    }
+    
+    .activity-time {
+      font-size: 12px;
+      color: #6b7280;
+    }
+    
+    /* Mobile Responsiveness */
+    .menu-toggle {
+      display: none;
+      position: fixed;
+      top: 20px;
+      left: 20px;
+      z-index: 1100;
+      background: white;
+      border: none;
+      border-radius: 8px;
+      padding: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    @media (max-width: 768px) {
+      .menu-toggle {
+        display: block;
+      }
+      
+      .sidebar {
+        transform: translateX(-100%);
+      }
+      
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      
+      .main-content {
+        margin-left: 0;
+        padding: 20px;
+        padding-top: 60px;
+      }
+      
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+    }
   </style>
-  <!-- SheetJS is still included (only used if you want it later) -->
-  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 </head>
 <body>
-  <h1>Electrical Label Extractor</h1>
-  <p class="subtitle">
-    <!-- Use <strong>Type 1</strong> for your original one-line diagrams and
-    <strong>Type 2</strong> for label-style systems. -->
-  </p>
+  <!-- Mobile Menu Toggle -->
+  <button class="menu-toggle" onclick="toggleSidebar()">
+    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M3 12h18M3 6h18M3 18h18"/>
+    </svg>
+  </button>
 
-  <div class="upload-container">
-    <!-- Type 1 panel -->
-    <div class="panel">
-      <h2>Type 1 PDFs</h2>
-      <p>Upload PDF like Medium Voltage style diagrams.</p>
+  <!-- Sidebar Navigation -->
+  <nav class="sidebar" id="sidebar">
+    <div class="logo">
+      <h1>EquipGPT</h1>
+      <p>PDF Processing Suite</p>
+    </div>
+    <div class="nav-items">
+      <button class="nav-item active" onclick="showPage('dashboard', this)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+        </svg>
+        Dashboard
+      </button>
+      <button class="nav-item" onclick="showPage('medium-voltage', this)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+        </svg>
+        Medium Voltage
+      </button>
+      <button class="nav-item" onclick="showPage('equipment-data', this)">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
+        </svg>
+        Equipment Data
+      </button>
+    </div>
+  </nav>
 
-      <input type="file" id="pdfFileType1" accept="application/pdf" />
-      <button id="btnType1" onclick="uploadPDFType1()">Process Type 1</button>
-      <span id="loadingType1" class="loading-label">Processing…</span>
-
-      <div class="scroll-wrapper" id="scrollType1" style="display: none;">
-        <table id="tableType1"></table>
+  <!-- Main Content Area -->
+  <main class="main-content">
+    <!-- Dashboard Page -->
+    <div id="dashboard" class="page active">
+      <div class="dashboard-header">
+        <h2>Welcome to EquipGPT Dashboard</h2>
+        <p>Process and analyze your electrical equipment PDFs with ease</p>
       </div>
-      <div class="results-footer" id="footerType1" style="display: none;">
-        <span class="exec-time" id="execTimeType1"></span>
-        <div class="button-group">
-          <button class="secondary" onclick="downloadEditedExcel('type1')">
-            Download edited Excel
-          </button>
-          <button onclick="downloadServerExcel('type1')">
-            Download original styled Excel
-          </button>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total PDFs Processed</div>
+          <div class="stat-value">247</div>
+          <div class="stat-change">
+            <svg width="16" height="16" fill="#10b981">
+              <path d="M8 4l4 8H4z"/>
+            </svg>
+            +12% from last month
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Equipment Extracted</div>
+          <div class="stat-value">1,842</div>
+          <div class="stat-change">
+            <svg width="16" height="16" fill="#10b981">
+              <path d="M8 4l4 8H4z"/>
+            </svg>
+            +23% from last month
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">MVS Count</div>
+          <div class="stat-value">523</div>
+          <div class="stat-change">
+            <svg width="16" height="16" fill="#10b981">
+              <path d="M8 4l4 8H4z"/>
+            </svg>
+            +8% from last month
+          </div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">DSG Count</div>
+          <div class="stat-value">189</div>
+          <div class="stat-change">
+            <svg width="16" height="16" fill="#10b981">
+              <path d="M8 4l4 8H4z"/>
+            </svg>
+            +15% from last month
+          </div>
+        </div>
+      </div>
+
+      <div class="activity-list">
+        <h3 class="activity-header">Recent Activity</h3>
+        <div class="activity-item">
+          <div class="activity-icon">
+            <svg width="20" height="20" fill="white">
+              <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+              <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 1 1 0 000 2H6a2 2 0 00-2 2v6a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2a1 1 0 100-2h2a4 4 0 014 4v8a4 4 0 01-4 4H6a4 4 0 01-4-4V7z"/>
+            </svg>
+          </div>
+          <div class="activity-details">
+            <div class="activity-title">Medium Voltage PDF Processed</div>
+            <div class="activity-time">2 minutes ago</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon">
+            <svg width="20" height="20" fill="white">
+              <path d="M9 2a1 1 0 000 2h2a1 1 0 100-2H9z"/>
+              <path fill-rule="evenodd" d="M4 5a2 2 0 012-2 1 1 0 000 2H6a2 2 0 00-2 2v6a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2a1 1 0 100-2h2a4 4 0 014 4v8a4 4 0 01-4 4H6a4 4 0 01-4-4V7z"/>
+            </svg>
+          </div>
+          <div class="activity-details">
+            <div class="activity-title">Equipment Data Extracted</div>
+            <div class="activity-time">15 minutes ago</div>
+          </div>
+        </div>
+        <div class="activity-item">
+          <div class="activity-icon">
+            <svg width="20" height="20" fill="white">
+              <path d="M10 2a8 8 0 100 16 8 8 0 000-16zM8 7a1 1 0 012 0v5a1 1 0 11-2 0V7zm4 0a1 1 0 012 0v5a1 1 0 11-2 0V7z"/>
+            </svg>
+          </div>
+          <div class="activity-details">
+            <div class="activity-title">Excel Report Generated</div>
+            <div class="activity-time">1 hour ago</div>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- Type 2 panel -->
-    <div class="panel">
-      <h2>Type 2 PDFs</h2>
-      <p>Upload PDF like System A style diagrams.</p>
+    <!-- Medium Voltage Page -->
+    <div id="medium-voltage" class="page">
+      <div class="upload-container">
+        <div class="upload-header">
+          <h3>Medium Voltage PDF Processor</h3>
+          <p>Upload your medium voltage PDF to extract equipment and connection mapping</p>
+        </div>
 
-      <input type="file" id="pdfFileType2" accept="application/pdf" />
-      <button id="btnType2" onclick="uploadPDFType2()">Process Type 2</button>
-      <span id="loadingType2" class="loading-label">Processing…</span>
+        <form id="mvForm">
+          <div class="upload-area" id="mvUploadArea">
+            <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+            </svg>
+            <p style="font-size: 16px; color: #374151; margin-bottom: 8px;">Drop your PDF here or click to browse</p>
+            <p style="font-size: 13px; color: #6b7280;">Maximum file size: 50MB</p>
+            <input type="file" id="mvInput" class="file-input" accept="application/pdf" />
+            <label for="mvInput" class="btn" style="margin-top: 16px;">Choose File</label>
+          </div>
 
-      <div class="scroll-wrapper" id="scrollType2" style="display: none;">
-        <table id="tableType2"></table>
-      </div>
-      <div class="results-footer" id="footerType2" style="display: none;">
-        <span class="exec-time" id="execTimeType2"></span>
-        <div class="button-group">
-          <button class="secondary" onclick="downloadEditedExcel('type2')">
-            Download edited Excel
+          <div id="mvFileName" style="display:none; margin-bottom: 16px; padding: 12px; background: #f3f4f6; border-radius: 8px; font-size: 14px;"></div>
+          
+          <button type="submit" class="btn" id="mvSubmit" disabled>
+            <svg width="16" height="16" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Process PDF
           </button>
-          <button onclick="downloadServerExcel('type2')">
-            Download original styled Excel
-          </button>
+
+          <div class="loader" id="mvLoader">
+            <div class="spinner"></div>
+          </div>
+
+          <div id="mvStatus" class="status-message"></div>
+        </form>
+
+        <div id="mvResults" class="results-section">
+          <div class="result-header">
+            <div class="result-stats">
+              <div class="result-stat">
+                <span></span>
+                <span id="mvMvsCount"></span>
+              </div>
+              <div class="result-stat">
+                <span></span>
+                <span id="mvDsgCount"></span>
+              </div>
+            </div>
+            <button class="btn" onclick="downloadMvExcel()">
+              Download Excel
+            </button>
+          </div>
+          <div id="mvTableContainer"></div>
         </div>
       </div>
     </div>
-  </div>
 
+    <!-- Equipment Data Page -->
+    <div id="equipment-data" class="page">
+      <div class="upload-container">
+        <div class="upload-header">
+          <h3>Equipment Data Extractor</h3>
+          <p>Upload your equipment PDF for detailed data extraction and analysis</p>
+        </div>
+
+        <form id="edForm">
+          <div class="upload-area" id="edUploadArea">
+            <svg class="upload-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+            </svg>
+            <p style="font-size: 16px; color: #374151; margin-bottom: 8px;">Drop your PDF here or click to browse</p>
+            <p style="font-size: 13px; color: #6b7280;">Maximum file size: 50MB</p>
+            <input type="file" id="edInput" class="file-input" accept="application/pdf" />
+            <label for="edInput" class="btn" style="margin-top: 16px;">Choose File</label>
+          </div>
+
+          <div id="edFileName" style="display:none; margin-bottom: 16px; padding: 12px; background: #f3f4f6; border-radius: 8px; font-size: 14px;"></div>
+          
+          <button type="submit" class="btn" id="edSubmit" disabled>
+            <svg width="16" height="16" fill="none" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            Process PDF
+          </button>
+
+          <div class="loader" id="edLoader">
+            <div class="spinner"></div>
+          </div>
+
+          <div id="edStatus" class="status-message"></div>
+        </form>
+
+        <div id="edResults" class="results-section">
+          <div class="result-header">
+            <div class="result-stats">
+              <div class="result-stat">
+                <span>Equipment Count</span>
+                <span id="edEquipmentCount">0</span>
+              </div>
+              <div class="result-stat">
+                <span>Types Identified</span>
+                <span id="edTypesCount">0</span>
+              </div>
+            </div>
+            <button class="btn" onclick="downloadEdExcel()">
+              Download Excel
+            </button>
+          </div>
+          <div id="edTableContainer"></div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
   <script>
-    const API_BASE = window.location.origin;
+    // ===== Backend base URL =====
+    // Default: same origin (when served by FastAPI).
+    // Optional override: add ?api=https://YOUR-RENDER-APP.onrender.com
+    const API_BASE = new URLSearchParams(window.location.search).get("api") || window.location.origin;
 
-    let type1Data = [];
-    let type2Data = [];
-    let type1ExecTime = null;
-    let type2ExecTime = null;
-    let type1ExcelFileName = null;
-    let type2ExcelFileName = null;
+    // Map pages -> backend endpoints
+    // - Medium Voltage page => Type 2 extractor
+    // - Equipment Data page => Type 1 extractor
+    const ENDPOINTS = {
+      mv: "/extract-type1",   // Medium Voltage -> Type 1
+      ed: "/extract-type2",   // Equipment Data -> Type 2
+      exportEdited: "/export-edited",
+      outputsPrefix: "/outputs/"
+    };
 
-    // Helper to toggle loading state
-    function setLoading(which, isLoading) {
-      const btnId = which === "type1" ? "btnType1" : "btnType2";
-      const loadId = which === "type1" ? "loadingType1" : "loadingType2";
 
-      const btn = document.getElementById(btnId);
-      const label = document.getElementById(loadId);
-      if (!btn || !label) return;
+    // Global variables for storing data (kept same names)
+    let mvData = null; // { which, equipment_data, excel_file_name, execution_time_seconds, rowsRef }
+    let edData = null;
 
-      if (isLoading) {
-        btn.disabled = true;
-        btn.textContent = which === "type1" ? "Processing..." : "Processing...";
-        label.style.display = "inline";
-      } else {
-        btn.disabled = false;
-        btn.textContent = which === "type1" ? "Process Type 1" : "Process Type 2";
-        label.style.display = "none";
+    // Navigation (unchanged UI)
+    function showPage(pageId, el) {
+      document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+      if (el) el.classList.add('active');
+
+      document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+      document.getElementById(pageId).classList.add('active');
+
+      if (window.innerWidth <= 768) document.getElementById('sidebar').classList.remove('open');
+    }
+
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    document.addEventListener('click', (e) => {
+      const sidebar = document.getElementById('sidebar');
+      const menuToggle = document.querySelector('.menu-toggle');
+      if (window.innerWidth <= 768 && !sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+        sidebar.classList.remove('open');
+      }
+    });
+
+    // Helpers
+    function absUrl(path) {
+      return new URL(path, API_BASE).toString();
+    }
+
+    function safeText(v) {
+      return (v === undefined || v === null) ? "" : String(v);
+    }
+
+    function headersFor(which) {
+      // Must match backend export-edited expectations
+      return which === "type1"
+        ? ["Equipment", "Type", "Properties", "Primary From", "Alternate From"]
+        : ["Equipment", "Type", "Properties", "Alternate From", "Primary From"];
+    }
+
+    function setStatus(el, type, msgHtml) {
+      el.className = 'status-message ' + (type || '');
+      el.innerHTML = msgHtml || '';
+      if (!msgHtml) {
+        el.className = 'status-message';
       }
     }
 
-    function renderTable(data, tableId) {
-      const table = document.getElementById(tableId);
-      if (!table) return;
-
-      if (!data.length) {
-        table.innerHTML = "<tbody><tr><td>No data returned</td></tr></tbody>";
-        return;
-      }
-
-      let html = "";
-      html += "<thead><tr>";
-      html += "<th>Equipment</th>";
-      html += "<th>Type</th>";
-      html += "<th>Properties</th>";
-      html += "<th>Primary From</th>";
-      html += "<th>Alternate From</th>";
-      html += "</tr></thead>";
-
-      html += "<tbody>";
-      data.forEach((row, idx) => {
-        html += "<tr>";
-        html += `<td contenteditable="true" oninput="updateCell('${tableId}', ${idx}, 'Equipment', this.innerText)">${row.Equipment || ""}</td>`;
-        html += `<td contenteditable="true" oninput="updateCell('${tableId}', ${idx}, 'Type', this.innerText)">${row.Type || ""}</td>`;
-        html += `<td contenteditable="true" oninput="updateCell('${tableId}', ${idx}, 'Properties', this.innerText)">${row.Properties || ""}</td>`;
-        html += `<td contenteditable="true" oninput="updateCell('${tableId}', ${idx}, 'Primary From', this.innerText)">${row["Primary From"] || ""}</td>`;
-        html += `<td contenteditable="true" oninput="updateCell('${tableId}', ${idx}, 'Alternate From', this.innerText)">${row["Alternate From"] || ""}</td>`;
-        html += "</tr>";
-      });
-      html += "</tbody>";
-
-      table.innerHTML = html;
-    }
-
-    function updateCell(tableId, index, key, value) {
-      let targetArray = tableId === "tableType1" ? type1Data : type2Data;
-      if (!targetArray[index]) return;
-      targetArray[index][key] = value;
-    }
-
-    async function uploadPDFType1() {
-      const input = document.getElementById("pdfFileType1");
-      const file = input.files[0];
-      if (!file) {
-        alert("Please select a PDF file for Type 1.");
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append("pdf_file", file);
-
-      setLoading("type1", true);
-
-      try {
-        const res = await fetch(`${API_BASE}/extract-type1`, {
-          method: "POST",
-          body: formData,
-        });
-
-        if (!res.ok) {
-          alert("Type 1 extraction failed.");
-          return;
-        }
-
-        const json = await res.json();
-        type1Data = json.equipment_data || [];
-        type1ExecTime = json.execution_time_seconds;
-        type1ExcelFileName = json.excel_file_name || null;
-
-        renderTable(type1Data, "tableType1");
-
-        document.getElementById("scrollType1").style.display = "block";
-        document.getElementById("footerType1").style.display = "flex";
-        document.getElementById("execTimeType1").innerText =
-          `Execution time: ${type1ExecTime}s`;
-      } catch (err) {
-        console.error(err);
-        alert("Error while calling Type 1 endpoint.");
-      } finally {
-        setLoading("type1", false);
-      }
-    }
-
-    async function uploadPDFType2() {
-      const input = document.getElementById("pdfFileType2");
-      const file = input.files[0];
-      if (!file) {
-        alert("Please select a PDF file for Type 2.");
-        return;
-      }
-
-      const formData = new FormData();
-      formData.append("pdf_file", file);
-
-      setLoading("type2", true);
-
-      try {
-        const res = await fetch(`${API_BASE}/extract-type2`, {
-          method: "POST",
-          body: formData,
-        });
-
-        if (!res.ok) {
-          alert("Type 2 extraction failed.");
-          return;
-        }
-
-        const json = await res.json();
-        type2Data = json.equipment_data || [];
-        type2ExecTime = json.execution_time_seconds;
-        type2ExcelFileName = json.excel_file_name || null;
-
-        renderTable(type2Data, "tableType2");
-
-        document.getElementById("scrollType2").style.display = "block";
-        document.getElementById("footerType2").style.display = "flex";
-        document.getElementById("execTimeType2").innerText =
-          `Execution time: ${type2ExecTime}s`;
-      } catch (err) {
-        console.error(err);
-        alert("Error while calling Type 2 endpoint.");
-      } finally {
-        setLoading("type2", false);
-      }
-    }
-
-    // Download edited version via server (styled header)
-    async function downloadEditedExcel(which) {
-      const raw = which === "type1" ? type1Data : type2Data;
-      if (!raw || !raw.length) {
-        alert("No data to export.");
-        return;
-      }
-
-      const headers =
-        which === "type1"
-          ? ["Equipment", "Type", "Properties", "Primary From", "Alternate From"]
-          : ["Equipment", "Type", "Properties", "Alternate From", "Primary From"];
-
-      const rows = raw.map((r) => {
-        const obj = {};
-        headers.forEach((h) => {
-          obj[h] = r[h] !== undefined && r[h] !== null ? r[h] : "";
-        });
-        return obj;
+    // Drag and drop functionality (unchanged)
+    function setupDragDrop(uploadArea, fileInput) {
+      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, preventDefaults, false);
       });
 
+      function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+
+      ['dragenter', 'dragover'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, () => uploadArea.classList.add('dragging'));
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, () => uploadArea.classList.remove('dragging'));
+      });
+
+      uploadArea.addEventListener('drop', (e) => {
+        const files = e.dataTransfer.files;
+        if (files.length > 0 && files[0].type === 'application/pdf') {
+          fileInput.files = files;
+          fileInput.dispatchEvent(new Event('change'));
+        }
+      });
+    }
+
+    // ===== Medium Voltage (Type 2) =====
+    const mvInput = document.getElementById('mvInput');
+    const mvUploadArea = document.getElementById('mvUploadArea');
+    const mvFileName = document.getElementById('mvFileName');
+    const mvSubmit = document.getElementById('mvSubmit');
+    const mvForm = document.getElementById('mvForm');
+    const mvLoader = document.getElementById('mvLoader');
+    const mvStatus = document.getElementById('mvStatus');
+    const mvResults = document.getElementById('mvResults');
+
+    setupDragDrop(mvUploadArea, mvInput);
+
+    mvInput.addEventListener('change', () => {
+      const file = mvInput.files[0];
+      if (file) {
+        mvFileName.style.display = 'block';
+        mvFileName.innerHTML = `<strong>Selected:</strong> ${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`;
+        mvSubmit.disabled = false;
+      }
+    });
+
+    mvForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const file = mvInput.files[0];
+      if (!file) return;
+
+      mvLoader.classList.add('active');
+      setStatus(mvStatus, '', '');
+      mvSubmit.disabled = true;
+      mvResults.classList.remove('active');
+
       try {
-        const res = await fetch(`${API_BASE}/export-edited`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ which, rows }),
-        });
+        const formData = new FormData();
+        // Backend expects pdf_file
+        formData.append('pdf_file', file);
 
-        if (!res.ok) {
-          alert("Failed to generate edited Excel on server.");
-          return;
+        const response = await fetch(absUrl(ENDPOINTS.mv), { method: 'POST', body: formData });
+
+        if (!response.ok) {
+          const text = await response.text();
+          throw new Error(`Server error: ${response.status}
+${text || ''}`);
         }
 
-        const json = await res.json();
-        const fileName = json.excel_file_name;
-        if (!fileName) {
-          alert("Server did not return a file name.");
-          return;
-        }
+        const data = await response.json();
 
-        window.open(`${API_BASE}/outputs/${fileName}`, "_blank");
-      } catch (err) {
-        console.error(err);
-        alert("Error while calling export-edited endpoint.");
+        mvData = {
+          which: "type1",
+          raw: data,
+          equipment_data: Array.isArray(data.equipment_data) ? data.equipment_data : [],
+          excel_file_name: data.excel_file_name || null,
+          execution_time_seconds: data.execution_time_seconds ?? null,
+        };
+
+        displayMvResults(mvData);
+
+        const dl = mvData.excel_file_name
+          ? `<br/><a href="${absUrl(ENDPOINTS.outputsPrefix + mvData.excel_file_name)}" target="_blank" rel="noopener noreferrer">Download original Excel</a>`
+          : "";
+
+        setStatus(mvStatus, 'success', `PDF processed successfully!${dl}`);
+
+      } catch (error) {
+        setStatus(mvStatus, 'error', `Error: ${safeText(error.message)}`);
+      } finally {
+        mvLoader.classList.remove('active');
+        mvSubmit.disabled = false;
+      }
+    });
+
+    function displayMvResults(state) {
+      // We don't have mvs/dsg counts from type2 backend; set to 0 (keeps UI)
+      // document.getElementById('mvMvsCount').textContent = 0;
+      // document.getElementById('mvDsgCount').textContent = 0;
+
+      const rows = state.equipment_data || [];
+      if (rows.length > 0) {
+        mvResults.classList.add('active');
+        renderTable(rows, 'mvTableContainer', 'mv', state.which);
       }
     }
 
-    // Download the server-generated Excel (original extraction output)
-    function downloadServerExcel(which) {
-      const fileName =
-        which === "type1" ? type1ExcelFileName : type2ExcelFileName;
+    // ===== Equipment Data (Type 1) =====
+    const edInput = document.getElementById('edInput');
+    const edUploadArea = document.getElementById('edUploadArea');
+    const edFileName = document.getElementById('edFileName');
+    const edSubmit = document.getElementById('edSubmit');
+    const edForm = document.getElementById('edForm');
+    const edLoader = document.getElementById('edLoader');
+    const edStatus = document.getElementById('edStatus');
+    const edResults = document.getElementById('edResults');
 
-      if (!fileName) {
-        alert("Server Excel file is not available yet.");
-        return;
+    setupDragDrop(edUploadArea, edInput);
+
+    edInput.addEventListener('change', () => {
+      const file = edInput.files[0];
+      if (file) {
+        edFileName.style.display = 'block';
+        edFileName.innerHTML = `<strong>Selected:</strong> ${file.name} (${(file.size / (1024 * 1024)).toFixed(2)} MB)`;
+        edSubmit.disabled = false;
+      }
+    });
+
+    edForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const file = edInput.files[0];
+      if (!file) return;
+
+      edLoader.classList.add('active');
+      setStatus(edStatus, '', '');
+      edSubmit.disabled = true;
+      edResults.classList.remove('active');
+
+      try {
+        const formData = new FormData();
+        formData.append('pdf_file', file);
+
+        const response = await fetch(absUrl(ENDPOINTS.ed), { method: 'POST', body: formData });
+
+        if (!response.ok) {
+          const text = await response.text();
+          throw new Error(`Server error: ${response.status}
+${text || ''}`);
+        }
+
+        const data = await response.json();
+
+        edData = {
+          which: "type2",
+          raw: data,
+          equipment_data: Array.isArray(data.equipment_data) ? data.equipment_data : [],
+          excel_file_name: data.excel_file_name || null,
+          execution_time_seconds: data.execution_time_seconds ?? null,
+        };
+
+        displayEdResults(edData);
+
+        const dl = edData.excel_file_name
+          ? `<br/><a href="${absUrl(ENDPOINTS.outputsPrefix + edData.excel_file_name)}" target="_blank" rel="noopener noreferrer">Download original Excel</a>`
+          : "";
+
+        setStatus(edStatus, 'success', `PDF processed successfully!${dl}`);
+
+      } catch (error) {
+        setStatus(edStatus, 'error', `Error: ${safeText(error.message)}`);
+      } finally {
+        edLoader.classList.remove('active');
+        edSubmit.disabled = false;
+      }
+    });
+
+    function displayEdResults(state) {
+      const rows = state.equipment_data || [];
+      document.getElementById('edEquipmentCount').textContent = rows.length;
+
+      // Count unique types (works with both)
+      const types = new Set(rows.map(item => item.Type).filter(Boolean));
+      document.getElementById('edTypesCount').textContent = types.size;
+
+      if (rows.length > 0) {
+        edResults.classList.add('active');
+        renderTable(rows, 'edTableContainer', 'ed', state.which);
+      }
+    }
+
+    // ===== Table rendering with pagination (UI intact) =====
+    function renderTable(data, containerId, prefix, which) {
+      const container = document.getElementById(containerId);
+      const pageSize = 20;
+      const totalPages = Math.max(1, Math.ceil(data.length / pageSize));
+      let currentPage = 1;
+
+      const headers = headersFor(which);
+
+      container.innerHTML = `
+        <div class="table-container">
+          <table class="equipment-table">
+            <thead>
+              <tr>
+                ${headers.map(h => `<th>${h}</th>`).join('')}
+              </tr>
+            </thead>
+            <tbody id="${prefix}TableBody"></tbody>
+          </table>
+          <div class="pagination">
+            <button id="${prefix}PrevBtn">Previous</button>
+            <span class="page-info" id="${prefix}PageInfo">Page 1 of ${totalPages}</span>
+            <button id="${prefix}NextBtn">Next</button>
+          </div>
+        </div>
+      `;
+
+      const tbody = document.getElementById(`${prefix}TableBody`);
+      const prevBtn = document.getElementById(`${prefix}PrevBtn`);
+      const nextBtn = document.getElementById(`${prefix}NextBtn`);
+      const pageInfo = document.getElementById(`${prefix}PageInfo`);
+
+      function renderPage(page) {
+        tbody.innerHTML = '';
+        const start = (page - 1) * pageSize;
+        const end = Math.min(start + pageSize, data.length);
+
+        for (let i = start; i < end; i++) {
+          const item = data[i];
+          const tr = document.createElement('tr');
+
+          headers.forEach(key => {
+            const td = document.createElement('td');
+            td.textContent = safeText(item[key]);
+            td.contentEditable = true;
+            td.addEventListener('input', () => {
+              item[key] = td.textContent.trim();
+            });
+            tr.appendChild(td);
+          });
+
+          tbody.appendChild(tr);
+        }
+
+        prevBtn.disabled = page === 1;
+        nextBtn.disabled = page === totalPages;
+        pageInfo.textContent = `Page ${page} of ${totalPages}`;
       }
 
-      window.open(`${API_BASE}/outputs/${fileName}`, "_blank");
+      prevBtn.addEventListener('click', () => {
+        if (currentPage > 1) {
+          currentPage--;
+          renderPage(currentPage);
+        }
+      });
+
+      nextBtn.addEventListener('click', () => {
+        if (currentPage < totalPages) {
+          currentPage++;
+          renderPage(currentPage);
+        }
+      });
+
+      renderPage(1);
+    }
+
+    // ===== Excel download buttons (KEEP UI button, change behavior to match old backend) =====
+    // Existing buttons call these by onclick in HTML.
+    async function downloadMvExcel() {
+      await downloadEditedExcelFromBackend(mvData, "type2");
+    }
+
+    async function downloadEdExcel() {
+      await downloadEditedExcelFromBackend(edData, "type1");
+    }
+
+    async function downloadEditedExcelFromBackend(state, which) {
+      if (!state || !Array.isArray(state.equipment_data) || state.equipment_data.length === 0) return;
+
+      const headers = headersFor(which);
+      const payload = {
+        which,
+        rows: state.equipment_data.map(r => {
+          const obj = {};
+          headers.forEach(h => obj[h] = safeText(r[h]));
+          return obj;
+        })
+      };
+
+      try {
+        const res = await fetch(absUrl(ENDPOINTS.exportEdited), {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(`Export failed: ${res.status}
+${text || ''}`);
+        }
+
+        const json = await res.json();
+        if (!json.excel_file_name) throw new Error("Server did not return excel_file_name.");
+
+        window.open(absUrl(ENDPOINTS.outputsPrefix + json.excel_file_name), "_blank");
+      } catch (e) {
+        alert(safeText(e.message || e));
+      }
     }
   </script>
 </body>
