@@ -494,6 +494,168 @@
       font-size: 12px;
       color: #6b7280;
     }
+
+    
+    /* Strategies Page Styles */
+    .strategies-container {
+      background: white;
+      border-radius: 20px;
+      padding: 32px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+    }
+    
+    .strategies-header {
+      margin-bottom: 32px;
+      padding-bottom: 24px;
+      border-bottom: 2px solid #f3f4f6;
+    }
+    
+    .strategies-header h3 {
+      font-size: 28px;
+      color: #1f2937;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+    
+    .strategies-header p {
+      color: #6b7280;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+    
+    .strategy-card {
+      background: #fafbfc;
+      border-radius: 16px;
+      padding: 28px;
+      margin-bottom: 24px;
+      border: 1px solid #e5e7eb;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .strategy-card:hover {
+      transform: translateX(8px);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+      border-color: #667eea;
+    }
+    
+    .strategy-card::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 4px;
+      height: 100%;
+      background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .strategy-card:hover::before {
+      opacity: 1;
+    }
+    
+    .strategy-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      font-weight: 700;
+      border-radius: 10px;
+      margin-bottom: 16px;
+      font-size: 16px;
+    }
+    
+    .strategy-title {
+      font-size: 20px;
+      color: #1f2937;
+      font-weight: 600;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .strategy-description {
+      color: #4b5563;
+      font-size: 14px;
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+    
+    .limitation-box {
+      background: #fff;
+      border: 1px solid #fecaca;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 20px;
+      position: relative;
+    }
+    
+    .limitation-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+    
+    .limitation-icon {
+      width: 24px;
+      height: 24px;
+      background: #fee2e2;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    
+    .limitation-icon svg {
+      width: 14px;
+      height: 14px;
+      fill: #dc2626;
+    }
+    
+    .limitation-title {
+      font-size: 14px;
+      color: #dc2626;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    .limitation-content {
+      color: #374151;
+      font-size: 14px;
+      line-height: 1.6;
+      padding-left: 32px;
+    }
+    
+    .tag {
+      display: inline-block;
+      padding: 4px 10px;
+      background: rgba(102, 126, 234, 0.1);
+      color: #667eea;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
+    
+    .tag.critical {
+      background: rgba(239, 68, 68, 0.1);
+      color: #ef4444;
+    }
+    
+    .tag.warning {
+      background: rgba(245, 158, 11, 0.1);
+      color: #f59e0b;
+    }
     
     /* Mobile Responsiveness */
     .menu-toggle {
@@ -532,6 +694,15 @@
       .stats-grid {
         grid-template-columns: 1fr;
       }
+      
+      .strategy-card {
+        padding: 20px;
+      }
+      
+      .limitation-content {
+        padding-left: 0;
+        margin-top: 8px;
+      }      
     }
   </style>
 </head>
@@ -567,6 +738,12 @@
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z"/>
         </svg>
         Equipment Data
+      </button>
+      <button class="nav-item" onclick="showPage('strategies')">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        Strategies & Limitations
       </button>
     </div>
   </nav>
@@ -774,6 +951,176 @@
         </div>
       </div>
     </div>
+    
+    <!-- Strategies & Limitations Page -->
+    <div id="strategies" class="page">
+      <div class="strategies-container">
+        <div class="strategies-header">
+          <h3>PDF Extraction Strategies & Their Limitations</h3>
+          <p>Understanding different approaches to PDF data extraction and why they face challenges with complex electrical diagrams</p>
+        </div>
+
+        <!-- Strategy 1 -->
+        <div class="strategy-card">
+          <div class="strategy-number">1</div>
+          <div class="strategy-title">
+            Pure Text-Based Extraction
+            <span class="tag">Fast</span>
+            <span class="tag">Simple</span>
+            <span class="tag">Stable</span>
+          </div>
+          <div class="strategy-description">
+            This strategy leverages only the PDF text layer. It reads all text using a PDF library, identifies equipment names using regular expressions (regex), and analyzes nearby lines of text to extract properties such as voltage (V), amperage (A), power (kW), and connection type (Y/V). 
+            <br><br>
+            The Primary From and Alternate From connections are inferred based on text proximity—essentially determining "who is closest in the text order"—combined with naming conventions. For example, it looks for the nearest MVS to a DSG or explicit phrases like "FED FROM". 
+            <br><br>
+            While this approach is fast, simple to implement, and highly stable since it ignores graphics entirely, it can only guess the network structure from text proximity rather than understanding the actual physical wiring shown on the page.
+          </div>
+          
+          <div class="limitation-box">
+            <div class="limitation-header">
+              <div class="limitation-icon">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                </svg>
+              </div>
+              <span class="limitation-title">Why This Fails on Complex Diagrams</span>
+            </div>
+            <div class="limitation-content">
+              On your diagrams, this approach fails because equipment pieces are arranged in long parallel rows with very similar names and extremely dense text. The "nearest text in reading order" doesn't match the actual feeder that is physically connected. The same upstream device can appear close in text to several different downstream loads, causing the script to consistently assign the wrong Primary and Alternate sources.
+            </div>
+          </div>
+        </div>
+
+        <!-- Strategy 2 -->
+        <div class="strategy-card">
+          <div class="strategy-number">2</div>
+          <div class="strategy-title">
+            Heavy OCR + Computer Vision Pipeline
+            <span class="tag">Accurate</span>
+            <span class="tag warning">Resource Heavy</span>
+            <span class="tag critical">Complex</span>
+          </div>
+          <div class="strategy-description">
+            This approach renders each PDF page to an image and processes it like a photograph. Image processing algorithms clean the page, detect boxes, lines, and shapes, then OCR (Optical Character Recognition) reads text from the detected regions.
+            <br><br>
+            The system attempts to visually detect equipment blocks, identify wires as line segments, and use geometry to understand connections. Once the physical structure is reconstructed, it maps each box to an equipment tag and uses wire directions to define Primary From and Alternate From relationships.
+            <br><br>
+            While this can theoretically be very accurate on messy PDFs with poor text layers, it's computationally expensive, more fragile to noise, and significantly harder to maintain.
+          </div>
+          
+          <div class="limitation-box">
+            <div class="limitation-header">
+              <div class="limitation-icon">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                </svg>
+              </div>
+              <span class="limitation-title">Why This Fails on Complex Diagrams</span>
+            </div>
+            <div class="limitation-content">
+              On your diagrams, most feeders and ties are drawn with dashed or segmented lines that are extremely thin at normal zoom levels. The computer vision stage detects them as many tiny broken segments with random gaps, and often merges crossing feeders into a single line. This results in the system building an incorrect or fragmented network and cannot reliably determine which upstream device is the true primary or alternate source.
+            </div>
+          </div>
+        </div>
+
+        <!-- Strategy 3 -->
+        <div class="strategy-card">
+          <div class="strategy-number">3</div>
+          <div class="strategy-title">
+            Full Topology Graph from Image Content
+            <span class="tag">Graph-Based</span>
+            <span class="tag">Directional</span>
+            <span class="tag warning">Sensitive</span>
+          </div>
+          <div class="strategy-description">
+            This sophisticated strategy treats the entire diagram as a mathematical graph structure. It first detects lines, junctions, and arrowheads in the image. Every junction becomes a node in the graph and every wire segment becomes an edge connecting nodes.
+            <br><br>
+            Arrowheads indicate the direction of power flow, creating a directed graph. Equipment text is "snapped" to nearby nodes, anchoring each piece of equipment to specific locations in the network. Once the graph is constructed, the algorithm walks upstream from each equipment node to find power sources—these paths define the Primary From and Alternate From relationships.
+            <br><br>
+            This approach is much closer to how an engineer reads a one-line diagram, but it heavily depends on accurate line and arrow detection and can be extremely sensitive to drawing quirks.
+          </div>
+          
+          <div class="limitation-box">
+            <div class="limitation-header">
+              <div class="limitation-icon">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                </svg>
+              </div>
+              <span class="limitation-title">Why This Fails on Complex Diagrams</span>
+            </div>
+            <div class="limitation-content">
+              The dashed lines and frequent crossings in your diagrams create hundreds of false junctions and broken paths. Many arrows are small or blend into other symbols when rasterized. The graph traversal algorithm then follows wrong branches, identifies alternate paths that don't actually exist, or completely loses the separation between primary and alternate feeders.
+            </div>
+          </div>
+        </div>
+
+        <!-- Strategy 4 -->
+        <div class="strategy-card">
+          <div class="strategy-number">4</div>
+          <div class="strategy-title">
+            Topology Graph from Vector Drawing Objects
+            <span class="tag">Vector-Based</span>
+            <span class="tag">Fast</span>
+            <span class="tag">Clean</span>
+          </div>
+          <div class="strategy-description">
+            Instead of converting pages to images, this strategy directly examines the PDF's vector drawing commands. It collects all lines, polylines, and polygons, transforms them into segments and junctions, then builds the same kind of node-edge graph without requiring any OCR.
+            <br><br>
+            Equipment names still come from the text layer, with each text object snapped to the nearest graph node. The algorithm then traverses the graph to identify upstream branches and determine which nodes represent Primary From and which are Alternates.
+            <br><br>
+            This approach is typically faster and cleaner than image-based computer vision because it works with the original vector geometry that created the diagram. However, it assumes those vectors form clean, continuous wires.
+          </div>
+          
+          <div class="limitation-box">
+            <div class="limitation-header">
+              <div class="limitation-icon">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                </svg>
+              </div>
+              <span class="limitation-title">Why This Fails on Complex Diagrams</span>
+            </div>
+            <div class="limitation-content">
+              In your diagrams, the vector data for many feeders is stored as chains of short dashes that don't actually touch at the ends. Where feeders cross on a bus, they overlap exactly at the same coordinates. The graph builder ends up with either disconnected pieces that don't form a complete path, or single "super nodes" where several independent feeders appear to be one large junction. This prevents the system from separating or correctly labeling the primary and alternate paths.
+            </div>
+          </div>
+        </div>
+
+        <!-- Strategy 5 -->
+        <div class="strategy-card">
+          <div class="strategy-number">5</div>
+          <div class="strategy-title">
+            LLM Vision-Driven Graph Extraction
+            <span class="tag">AI-Powered</span>
+            <span class="tag">Flexible</span>
+            <span class="tag critical">Costly</span>
+          </div>
+          <div class="strategy-description">
+            This cutting-edge approach outsources the "vision and reasoning" to a multimodal Large Language Model (LLM). The system renders the page to an image, extracts raw text blocks, and sends both along with a detailed prompt to the model.
+            <br><br>
+            The prompt carefully describes what constitutes equipment, what constitutes a connection, and specifies the expected output format (typically a JSON list of nodes and edges with equipment types and directions). The model returns a structured graph that is then post-processed to determine Primary From, Alternate From, and final label lines.
+            <br><br>
+            This strategy offers exceptional flexibility and can handle unusual drawings or mixed annotations. However, it introduces API costs and latency, and its accuracy depends heavily on prompt design and the model's visual understanding capabilities.
+          </div>
+          
+          <div class="limitation-box">
+            <div class="limitation-header">
+              <div class="limitation-icon">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                </svg>
+              </div>
+              <span class="limitation-title">Why This Fails on Complex Diagrams</span>
+            </div>
+            <div class="limitation-content">
+              Your diagrams are extremely dense with information. The dashed and overlapping feeders look very similar at the resolution that the model can reasonably process. The primary or alternate relationship is often defined by subtle symbols and operating notes rather than simple, single arrows. While the model can usually read equipment tags and properties, it frequently misinterprets which dashed line belongs to which equipment and confuses tie arrangements. The extracted primary and alternate feeds are not consistent or reliable enough for production use.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>    
   </main>
 
   <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
